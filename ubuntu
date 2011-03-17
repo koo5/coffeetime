@@ -1,0 +1,31 @@
+if ! which node
+then
+    if ! [ -d node-v* ]
+    then
+	if ! which wget
+	then
+	    sudo apt-get install wget
+	fi
+	wget http://nodejs.org/dist/node-v0.4.2.tar.gz
+	tar -xf node-v*
+    fi
+    cd node-v*
+    ./configure --prefix=$HOME/local/node
+    make
+    make install
+    cd ..
+    echo "export PATH=$HOME/local/node/bin:$PATH" >> ~/.bash_profile
+    export PATH=$HOME/local/node/bin:$PATH
+fi
+if ! which npm
+then
+    if ! which curl
+    then
+	sudo apt-get install curl
+    fi
+    curl http://npmjs.org/install.sh | sh
+fi
+if ! which coffee
+then
+    npm install coffee-script
+fi
