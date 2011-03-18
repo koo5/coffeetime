@@ -2,20 +2,18 @@
 path = require 'path'
 fs = require 'fs'
 os = require 'os'
-paths={}
-paths.home = process.env['HOME'] + "/.coffeetime"
-paths.time = paths.home + "/time.json"
-console.log paths.time + " exists: " + path.existsSync paths.time
 
 load = () ->
-    if path.existsSync paths.time
-        JSON.parse fs.readFileSync paths.time
+    try
+        JSON.parse fs.readFileSync exports.paths.time
+    catch e
+        {}
 
 save =()->
-    if not path.existsSync paths.home
-        fs.mkdirSync paths.home, 0700
-    fs.writeFileSync paths.time, JSON.stringify time
-    console.log "written"
+    if not path.existsSync exports.paths.home
+        fs.mkdirSync exports.paths.home, 0700
+    fs.writeFileSync exports.paths.time, JSON.stringify exports.time
+    console.log "saved"
 
 addparam = (o,param)->
     unless param of o
@@ -27,12 +25,6 @@ addclock = (o)->
     o = addparam o, 'minutes'
     o = addparam o, 'seconds'
 
-time = load() || {}    
-time = addclock time
-save()
-console.log time
-session = addclock {}
-timer = null
 
 overflow = (time)->
     if time.seconds > 59
@@ -43,29 +35,38 @@ overflow = (time)->
         time.hours++
     time
 
-togglerunning =()->
-    if timer
-        clearInterval timer
-        timer = null
+exports.togglerunning =()->
+    if exports.timers.one?
+        clearInterval exports.timers.one
+        exports.timers.one = null
         console.log "stopped"
     else
-        timer = setInterval ()->
-            time.seconds++
-            session.seconds++
-            time = overflow time
-            session = overflow session
-            human = session.hours + ":" + session.minutes + ":" + session.seconds
+        exports.timers.one = setInterval ()->
+            exports.time.seconds++
+            exports.session.seconds++
+            exports.time = overflow exports.time
+            exports.session = overflow exports.session
+            human = exports.session.hours + ":" + exports.session.minutes + ":" + exports.session.seconds
             console.log human + "\33]0;" + human + "\7"
-            if (time.seconds == 0) and (time.minutes % 10 == 0) then save()
+            if (exports.time.seconds == 0) and (exports.time.minutes % 10 == 0) then exports.save()
         , 1000
         console.log "running"
 
-togglerunning()
-process.stdin.resume();
-process.stdin.on 'data', (data) ->
-    togglerunning()
-    
-process.on 'SIGINT' ,()->
-    console.log "saving"
+exports.init = ()->
+    exports.paths={}
+    exports.timers={}
+    exports.paths.home = process.env['HOME'] + "/.coffeetime"
+    exports.paths.time = exports.paths.home  + "/time.json"
+    exports.time = load()
+    exports.time = addclock exports.time
+    console.log exports.time
     save()
-    process.exit()
+    exports.session = addclock {}
+    exports.togglerunning()
+    process.stdin.resume();
+    process.stdin.on 'data', 
+    (data)->
+        exports.togglerunning()
+
+exports.sigint = ()->
+    save()
