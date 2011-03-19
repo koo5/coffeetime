@@ -1,15 +1,24 @@
+if ! which npm node
+then
+    if ! which curl
+    then
+	echo "sudo apt-get install curl:"
+        sudo apt-get install curl
+    fi
+fi
 if ! which node
 then
-    if ! [ -d node-v* ]
+    echo "sudo apt-get install g++ libssl-dev:"
+    sudo apt-get install g++ libssl-dev
+fi
+if ! which node
+then
+    if ! [ -d node ]
     then
-	if ! which wget
-	then
-	    sudo apt-get install wget
-	fi
-	wget http://nodejs.org/dist/node-v0.4.2.tar.gz
-	tar -xf node-v*
+	curl http://nodejs.org/dist/node-v0.4.2.tar.gz > node.tar.gz
+	tar -xf node.tar.gz
     fi
-    cd node-v*
+    cd node
     ./configure --prefix=$HOME/local/node
     make
     make install
@@ -19,10 +28,7 @@ then
 fi
 if ! which npm
 then
-    if ! which curl
-    then
-	sudo apt-get install curl
-    fi
+    
     curl http://npmjs.org/install.sh | sh
 fi
 if ! which coffee
