@@ -5,10 +5,8 @@ process.on 'SIGINT',
 ()->
     console.log ''
     c.sigint()
-    console.log c
+    console.log c.time
     process.exit()
-
-console.log c
 
 c.init()
 

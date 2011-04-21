@@ -35,6 +35,9 @@ overflow = (time)->
         time.hours++
     time
 
+humanize = (time) ->
+    return time.hours + ":" + time.minutes
+
 exports.togglerunning =()->
     if exports.timers.one?
         clearInterval exports.timers.one
@@ -46,11 +49,12 @@ exports.togglerunning =()->
             exports.session.seconds++
             exports.time = overflow exports.time
             exports.session = overflow exports.session
-            human = exports.session.hours + ":" + exports.session.minutes + ":" + exports.session.seconds
-            console.log human + "\33]0;" + human + "\7"
-            if (exports.time.seconds == 0) and (exports.time.minutes % 10 == 0) then exports.save()
+            human = humanize exports.session
+            if (exports.session.seconds == 0)
+                if (exports.session.minutes % 10 == 0) then save()
+                console.log human + "\33]0;" + human + "\7"
         , 1000
-        console.log "running"
+        console.log "running, total: " + humanize exports.time
 
 exports.init = ()->
     exports.paths={}

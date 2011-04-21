@@ -5,12 +5,12 @@ then
 fi
 if ! which node
 then
-    if ! [ -d node ]
+    if ! [ -d node-v0.4.2 ]
     then
 	curl http://nodejs.org/dist/node-v0.4.2.tar.gz > node.tar.gz
 	tar -xf node.tar.gz
     fi
-    cd node
+    cd node-v0.4.2
     ./configure --prefix=$HOME/local/node
     make
     make install
