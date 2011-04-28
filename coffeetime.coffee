@@ -55,6 +55,10 @@ exports.togglerunning =()->
                 console.log human + "\33]0;" + human + "\7"
         , 1000
         console.log "running, total: " + humanize exports.time
+        exports.lasttotal.hours = exports.time.hours
+        exports.lasttotal.minutes = exports.time.minutes
+        exports.lasttotal.seconds = exports.time.seconds
+        
 
 exports.init = ()->
     exports.paths={}
@@ -66,6 +70,7 @@ exports.init = ()->
     console.log exports.time
     save()
     exports.session = addclock {}
+    exports.lasttotal = {}
     exports.togglerunning()
     process.stdin.resume();
     process.stdin.on 'data', 
