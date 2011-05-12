@@ -19,3 +19,8 @@ class flipflop
         
 exports.flipflop = flipflop
 
+class timer
+    stop()->
+	clearInterval t
+    start(int)->
+	setInterval on_tick, int

@@ -39,28 +39,29 @@ overflow = (time)->
 humanize = (time) ->
     return time.hours + ":" + time.minutes
 
-exports.running = new toys.flipflop (props:{
+exports.timer = new toys.timer
+    on_tick = 
+        exports.time.seconds++
+        exports.session.seconds++
+        exports.time = overflow exports.time
+        exports.session = overflow exports.session
+        human = humanize exports.session
+        if (exports.session.seconds == 0)
+            if (exports.session.minutes % 10 == 0) then save()
+            console.log human + "\33]0;" + human + "\7"
+
+exports.running = new toys.flipflop (
     bit: off,
     on_off: ()->
-        clearInterval exports.timers.one
-        exports.timers.one = null
+	exports.timer.stop()
         console.log "stopped"
     on_on: ()->
-        exports.timers.one = setInterval ()->
-            exports.time.seconds++
-            exports.session.seconds++
-            exports.time = overflow exports.time
-            exports.session = overflow exports.session
-            human = humanize exports.session
-            if (exports.session.seconds == 0)
-                if (exports.session.minutes % 10 == 0) then save()
-                console.log human + "\33]0;" + human + "\7"
-        , 1000
+        exports.timer.start()
         console.log "running, total: " + humanize exports.time
         exports.lasttotal.hours = exports.time.hours
         exports.lasttotal.minutes = exports.time.minutes
         exports.lasttotal.seconds = exports.time.seconds
-    })
+    )
 
 exports.init = ()->
     exports.paths={}
