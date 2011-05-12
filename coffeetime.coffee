@@ -2,6 +2,7 @@
 path = require 'path'
 fs = require 'fs'
 os = require 'os'
+toys = require './toys'
 
 load = () ->
     try
@@ -38,14 +39,13 @@ overflow = (time)->
 humanize = (time) ->
     return time.hours + ":" + time.minutes
 
-exports.running = new flipflop
-    [
+exports.running = new toys.flipflop (props:{
     bit: off,
     on_off: ()->
         clearInterval exports.timers.one
         exports.timers.one = null
         console.log "stopped"
-    on_on ()->
+    on_on: ()->
         exports.timers.one = setInterval ()->
             exports.time.seconds++
             exports.session.seconds++
@@ -60,7 +60,7 @@ exports.running = new flipflop
         exports.lasttotal.hours = exports.time.hours
         exports.lasttotal.minutes = exports.time.minutes
         exports.lasttotal.seconds = exports.time.seconds
-    ]
+    })
 
 exports.init = ()->
     exports.paths={}
@@ -72,7 +72,7 @@ exports.init = ()->
     save()
     exports.session = addclock {}
     exports.lasttotal = {}
-    exports.running.toggle()
+    exports.running.wake_up()
     process.stdin.resume();
     process.stdin.on 'data', 
         (data)->
