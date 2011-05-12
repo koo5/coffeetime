@@ -38,12 +38,14 @@ overflow = (time)->
 humanize = (time) ->
     return time.hours + ":" + time.minutes
 
-exports.togglerunning =()->
-    if exports.timers.one?
+exports.running = new flipflop
+    [
+    bit: off,
+    on_off: ()->
         clearInterval exports.timers.one
         exports.timers.one = null
         console.log "stopped"
-    else
+    on_on ()->
         exports.timers.one = setInterval ()->
             exports.time.seconds++
             exports.session.seconds++
@@ -58,24 +60,23 @@ exports.togglerunning =()->
         exports.lasttotal.hours = exports.time.hours
         exports.lasttotal.minutes = exports.time.minutes
         exports.lasttotal.seconds = exports.time.seconds
-        
+    ]
 
 exports.init = ()->
     exports.paths={}
     exports.timers={}
     exports.paths.home = process.env['HOME'] + "/.coffeetime"
     exports.paths.time = exports.paths.home  + "/time.json"
-    exports.time = load()
-    exports.time = addclock exports.time
+    exports.time = addclock load()
     console.log exports.time
     save()
     exports.session = addclock {}
     exports.lasttotal = {}
-    exports.togglerunning()
+    exports.running.toggle()
     process.stdin.resume();
     process.stdin.on 'data', 
-    (data)->
-        exports.togglerunning()
+        (data)->
+            exports.running.toggle()
 
 exports.sigint = ()->
     save()
