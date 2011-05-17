@@ -24,3 +24,11 @@ class timer
 	clearInterval t
     start(int)->
 	setInterval on_tick, int
+
+class flipfloptimer (bit, func, int)
+    timer (func, int)
+    flipflop (bit, () ->
+	timer.start(),
+	() ->
+	    timer.stop()
+    )

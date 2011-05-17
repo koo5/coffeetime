@@ -6,14 +6,14 @@ toys = require './toys'
 
 load = () ->
     try
-        JSON.parse fs.readFileSync exports.paths.time
+        JSON.parse fs.readFileSync paths.time
     catch e
         {}
 
 save =()->
-    if not path.existsSync exports.paths.home
-        fs.mkdirSync exports.paths.home, 0700
-    fs.writeFileSync exports.paths.time, JSON.stringify exports.time
+    if not path.existsSync paths.home
+        fs.mkdirSync paths.home, 0700
+    fs.writeFileSync paths.time, JSON.stringify time
     console.log "saved"
 
 addparam = (o,param)->
@@ -39,45 +39,40 @@ overflow = (time)->
 humanize = (time) ->
     return time.hours + ":" + time.minutes
 
-exports.timer = new toys.timer
-    on_tick = 
-        exports.time.seconds++
-        exports.session.seconds++
-        exports.time = overflow exports.time
-        exports.session = overflow exports.session
-        human = humanize exports.session
-        if (exports.session.seconds == 0)
-            if (exports.session.minutes % 10 == 0) then save()
+timer = new toys.flipfloptimer
+    bit: on
+    on_tick: () -> 
+        time.seconds++
+        session.seconds++
+        time = overflow time
+        session = overflow session
+        human = humanize session
+        if (session.seconds == 0)
+            if (session.minutes % 10 == 0) then save()
             console.log human + "\33]0;" + human + "\7"
-
-exports.running = new toys.flipflop (
-    bit: off,
+    int: 1000
     on_off: ()->
-	exports.timer.stop()
         console.log "stopped"
     on_on: ()->
-        exports.timer.start()
-        console.log "running, total: " + humanize exports.time
-        exports.lasttotal.hours = exports.time.hours
-        exports.lasttotal.minutes = exports.time.minutes
-        exports.lasttotal.seconds = exports.time.seconds
-    )
+        console.log "running, total: " + humanize time
+        exports.lasttotal.hours = time.hours
+        exports.lasttotal.minutes = time.minutes
+        exports.lasttotal.seconds = time.seconds
 
 exports.init = ()->
-    exports.paths={}
-    exports.timers={}
-    exports.paths.home = process.env['HOME'] + "/.coffeetime"
-    exports.paths.time = exports.paths.home  + "/time.json"
-    exports.time = addclock load()
-    console.log exports.time
+    paths={}
+    paths.home = process.env['HOME'] + "/.coffeetime"
+    paths.time = exports.paths.home  + "/time.json"
+    time = addclock load()
+    console.log time
     save()
-    exports.session = addclock {}
-    exports.lasttotal = {}
-    exports.running.wake_up()
+    session = addclock {}
+    lasttotal = {}
+    timer.wake_up()
     process.stdin.resume();
     process.stdin.on 'data', 
         (data)->
-            exports.running.toggle()
+            timer.toggle()
 
 exports.sigint = ()->
     save()
