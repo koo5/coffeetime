@@ -1,0 +1,7 @@
+install node.js and coffescript, possibly with the help of the script 'ubuntu'
+run runner.coffee, it starts counting time
+length of the current session is displayed
+press enter to pause/continue
+total accumulated time is shown at start and exit (ctrl c)
+if you forget to pause, press ctrl c, 'last total' will be the total at last unpause
+time is stored in ~/.coffeetime/time.json
